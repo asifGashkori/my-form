@@ -1,56 +1,320 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Contact Form</title>
-  <style>
-    body { font-family: sans-serif; max-width: 400px; margin: 60px auto; }
-    input, textarea { display: block; width: 100%; margin: 10px 0; padding: 8px; }
-    button { padding: 10px 20px; cursor: pointer; }
-    #status { margin-top: 10px; }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Free AI Automation Consultation</title>
+
+<style>
+
+*{
+box-sizing:border-box;
+margin:0;
+padding:0;
+font-family:Arial,Helvetica,sans-serif;
+}
+
+body{
+
+background:#f4f7fb;
+padding:40px;
+
+}
+
+.container{
+
+max-width:800px;
+margin:auto;
+background:white;
+padding:35px;
+border-radius:15px;
+box-shadow:0 10px 30px rgba(0,0,0,.1);
+
+}
+
+h1{
+
+color:#2563eb;
+margin-bottom:10px;
+
+}
+
+p{
+
+margin-bottom:25px;
+color:#555;
+
+}
+
+label{
+
+font-weight:bold;
+display:block;
+margin-top:18px;
+margin-bottom:8px;
+
+}
+
+input,
+select,
+textarea{
+
+width:100%;
+padding:12px;
+border:1px solid #ccc;
+border-radius:8px;
+font-size:15px;
+
+}
+
+textarea{
+
+height:120px;
+resize:vertical;
+
+}
+
+.checkbox-group{
+
+display:grid;
+grid-template-columns:repeat(2,1fr);
+gap:10px;
+margin-top:10px;
+
+}
+
+.checkbox-group label{
+
+font-weight:normal;
+
+}
+
+button{
+
+margin-top:30px;
+width:100%;
+padding:15px;
+background:#2563eb;
+color:white;
+font-size:18px;
+border:none;
+border-radius:10px;
+cursor:pointer;
+
+}
+
+button:hover{
+
+background:#1d4ed8;
+
+}
+
+#status{
+
+margin-top:25px;
+padding:15px;
+border-radius:10px;
+display:none;
+
+}
+
+.loading{
+
+background:#fff8db;
+color:#856404;
+
+}
+
+.success{
+
+background:#d4edda;
+color:#155724;
+
+}
+
+.error{
+
+background:#f8d7da;
+color:#721c24;
+
+}
+
+</style>
+
 </head>
+
 <body>
-  <h2>Contact Us</h2>
-  <form id="myForm">
-    <input type="text" id="name" placeholder="Your Name" required>
-    <input type="email" id="email" placeholder="Your Email" required>
-    <textarea id="message" placeholder="Your Message" required></textarea>
-    <button type="submit">Send</button>
-  </form>
-  <div id="status"></div>
 
-  <script>
-    const WEBHOOK_URL = "https://n8n.asifautomation.dedyn.io/webhook-test/data-reciever";
+<div class="container">
 
-    document.getElementById("myForm").addEventListener("submit", async (e) => {
-      e.preventDefault();
+<h1>🚀 Free AI Automation Consultation</h1>
 
-      const data = {
-        name: document.getElementById("name").value,
-        email: document.getElementById("email").value,
-        message: document.getElementById("message").value
-      };
+<p>
+Tell us about your business and our AI will recommend automations
+that can save you time and increase productivity.
+</p>
 
-      document.getElementById("status").innerText = "Sending...";
+<form id="consultationForm">
 
-      try {
-        const res = await fetch(WEBHOOK_URL, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(data)
-        });
+<label>Your Name</label>
+<input type="text" id="name" required>
 
-        if (res.ok) {
-          document.getElementById("status").innerText = "✅ Sent successfully!";
-          e.target.reset();
-        } else {
-          document.getElementById("status").innerText = "❌ Failed to send.";
-        }
-      } catch (err) {
-        document.getElementById("status").innerText = "❌ Error: " + err.message;
-      }
-    });
-  </script>
+<label>Business Name</label>
+<input type="text" id="businessName" required>
+
+<label>Email</label>
+<input type="email" id="email" required>
+
+<label>Business Type</label>
+
+<select id="businessType">
+
+<option>Realtor</option>
+<option>Dentist</option>
+<option>Law Firm</option>
+<option>Accounting</option>
+<option>E-commerce</option>
+<option>Restaurant</option>
+<option>Insurance</option>
+<option>Other</option>
+
+</select>
+
+<label>What takes the most time in your business?</label>
+
+<textarea id="problem" required></textarea>
+
+<label>How many leads do you receive each month?</label>
+
+<select id="leads">
+
+<option>1-10</option>
+<option>11-50</option>
+<option>51-200</option>
+<option>200+</option>
+
+</select>
+
+<label>Which tools do you currently use?</label>
+
+<div class="checkbox-group">
+
+<label><input type="checkbox" value="Gmail"> Gmail</label>
+
+<label><input type="checkbox" value="Google Sheets"> Google Sheets</label>
+
+<label><input type="checkbox" value="Excel"> Excel</label>
+
+<label><input type="checkbox" value="WhatsApp"> WhatsApp</label>
+
+<label><input type="checkbox" value="CRM"> CRM</label>
+
+<label><input type="checkbox" value="None"> None</label>
+
+</div>
+
+<label>Describe one task you wish AI could automate.</label>
+
+<textarea id="goal" required></textarea>
+
+<button type="submit">
+
+Get My AI Automation Plan
+
+</button>
+
+</form>
+
+<div id="status"></div>
+
+</div>
+
+<script>
+
+const webhook =
+"https://n8n.asifautomation.dedyn.io/webhook-test/data-reciever";
+
+const form=document.getElementById("consultationForm");
+
+const status=document.getElementById("status");
+
+form.addEventListener("submit",async(e)=>{
+
+e.preventDefault();
+
+status.style.display="block";
+
+status.className="loading";
+
+status.innerHTML="⏳ Sending your request to AI...";
+
+const tools=[];
+
+document.querySelectorAll(".checkbox-group input:checked")
+
+.forEach(cb=>tools.push(cb.value));
+
+const payload={
+
+name:document.getElementById("name").value,
+
+business_name:document.getElementById("businessName").value,
+
+email:document.getElementById("email").value,
+
+business_type:document.getElementById("businessType").value,
+
+biggest_problem:document.getElementById("problem").value,
+
+monthly_leads:document.getElementById("leads").value,
+
+tools:tools,
+
+ai_goal:document.getElementById("goal").value
+
+};
+
+try{
+
+const response=await fetch(webhook,{
+
+method:"POST",
+
+headers:{
+
+"Content-Type":"application/json"
+
+},
+
+body:JSON.stringify(payload)
+
+});
+
+const data=await response.json();
+
+status.className="success";
+
+status.innerHTML=
+
+data.message ||
+
+"✅ Thank you! Your AI consultation request has been received.";
+
+}
+
+catch(err){
+
+status.className="error";
+
+status.innerHTML=
+
+"❌ Unable to contact the automation server.";
+
+}
+
+});
+
+</script>
+
 </body>
 </html>
