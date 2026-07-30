@@ -109,6 +109,13 @@ background:#1d4ed8;
 
 }
 
+button:disabled{
+
+background:#93b4e8;
+cursor:not-allowed;
+
+}
+
 #status{
 
 margin-top:25px;
@@ -217,7 +224,7 @@ that can save you time and increase productivity.
 
 <textarea id="goal" required></textarea>
 
-<button type="submit">
+<button type="submit" id="submitBtn">
 
 Get My AI Automation Plan
 
@@ -234,96 +241,114 @@ Get My AI Automation Plan
 const webhook =
 "https://n8n.asifautomation.dedyn.io/webhook/data-receiver";
 
-const form=document.getElementById("consultationForm");
+const form = document.getElementById("consultationForm");
+const status = document.getElementById("status");
+const submitBtn = document.getElementById("submitBtn");
 
-const status=document.getElementById("status");
+form.addEventListener("submit", async (e) => {
 
-form.addEventListener("submit",async(e)=>{
+  e.preventDefault();
 
-e.preventDefault();
+  status.style.display = "block";
+  status.className = "loading";
+  status.innerHTML = "⏳ Creating your personalized AI automation plan...";
+  submitBtn.disabled = true;
 
-status.style.display="block";
+  const tools = [];
 
-status.className="loading";
+  document.querySelectorAll(".checkbox-group input:checked")
+    .forEach(cb => tools.push(cb.value));
 
-status.innerHTML="⏳ Sending your request to AI...";
+  const payload = {
+    name: document.getElementById("name").value,
+    business_name: document.getElementById("businessName").value,
+    email: document.getElementById("email").value,
+    business_type: document.getElementById("businessType").value,
+    biggest_problem: document.getElementById("problem").value,
+    monthly_leads: document.getElementById("leads").value,
+    tools: tools,
+    ai_goal: document.getElementById("goal").value
+  };
 
+  try {
 
-const tools=[];
+    const response = await fetch(webhook, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(payload)
+    });
 
-document.querySelectorAll(".checkbox-group input:checked")
+    if (!response.ok) {
+      throw new Error(`Server responded with status ${response.status}`);
+    }
 
-.forEach(cb=>tools.push(cb.value));
+    // Read the raw response first, then try to make sense of it,
+    // since n8n might return plain text, JSON with a known field,
+    // or JSON with an unexpected shape.
+    const rawText = await response.text();
 
+    let aiAnswer = rawText;
 
-const payload={
+    try {
+      const parsed = JSON.parse(rawText);
 
-name:document.getElementById("name").value,
+      // Try common field names an n8n "Respond to Webhook" node
+      // might use. Adjust this list to match your actual node output.
+      aiAnswer =
+        parsed.answer ||
+        parsed.output ||
+        parsed.text ||
+        parsed.message ||
+        parsed.result ||
+        JSON.stringify(parsed, null, 2);
 
-business_name:document.getElementById("businessName").value,
+    } catch (parseErr) {
+      // Not JSON — rawText (plain text from the AI) is used as-is.
+    }
 
-email:document.getElementById("email").value,
+    if (!aiAnswer || aiAnswer.trim() === "") {
+      throw new Error("Received an empty response from the automation server.");
+    }
 
-business_type:document.getElementById("businessType").value,
+    status.className = "success";
 
-biggest_problem:document.getElementById("problem").value,
+    status.innerHTML = `
 
-monthly_leads:document.getElementById("leads").value,
+      <h2>🎉 Your AI Automation Plan</h2>
 
-tools:tools,
+      <br>
 
-ai_goal:document.getElementById("goal").value
+      <div style="
+        background:#ffffff;
+        padding:20px;
+        border-radius:10px;
+        line-height:1.6;
+        text-align:left;
+        ">
 
-};
+        ${aiAnswer.replace(/\n/g, "<br>")}
 
+      </div>
 
-try{
+    `;
 
+  }
 
-const response=await fetch(webhook,{
+  catch (error) {
 
-method:"POST",
+    status.className = "error";
 
-headers:{
+    status.innerHTML =
+      "❌ Something went wrong: " + error.message +
+      "<br><br>Please try again, or contact us directly if this keeps happening.";
 
-"Content-Type":"application/json"
+  }
 
-},
-
-body:JSON.stringify(payload)
-
-});
-
-
-const data=await response.json();
-
-
-status.className="success";
-
-
-status.innerHTML=
-
-data.message ||
-
-"✅ Thank you! Your AI consultation request has been received.";
-
-
-}
-
-
-catch(err){
-
-
-status.className="error";
-
-
-status.innerHTML=
-
-"❌ Unable to contact the automation server.";
-
-
-}
-
+  finally {
+    submitBtn.disabled = false;
+  }
 
 });
 
