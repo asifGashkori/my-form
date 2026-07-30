@@ -234,102 +234,93 @@ Get My AI Automation Plan
 const webhook =
 "https://n8n.asifautomation.dedyn.io/webhook-test/data-receiver";
 
-const form = document.getElementById("consultationForm");
-const status = document.getElementById("status");
+const form=document.getElementById("consultationForm");
 
-form.addEventListener("submit", async (e) => {
+const status=document.getElementById("status");
+
+form.addEventListener("submit",async(e)=>{
 
 e.preventDefault();
 
-status.style.display = "block";
-status.className = "loading";
-status.innerHTML = "⏳ Creating your personalized AI automation plan...";
+status.style.display="block";
 
-const tools = [];
+status.className="loading";
+
+status.innerHTML="⏳ Sending your request to AI...";
+
+
+const tools=[];
 
 document.querySelectorAll(".checkbox-group input:checked")
-.forEach(cb => tools.push(cb.value));
+
+.forEach(cb=>tools.push(cb.value));
 
 
-const payload = {
+const payload={
 
-name: document.getElementById("name").value,
+name:document.getElementById("name").value,
 
-business_name:
-document.getElementById("businessName").value,
+business_name:document.getElementById("businessName").value,
 
-email:
-document.getElementById("email").value,
+email:document.getElementById("email").value,
 
-business_type:
-document.getElementById("businessType").value,
+business_type:document.getElementById("businessType").value,
 
-biggest_problem:
-document.getElementById("problem").value,
+biggest_problem:document.getElementById("problem").value,
 
-monthly_leads:
-document.getElementById("leads").value,
+monthly_leads:document.getElementById("leads").value,
 
-tools: tools,
+tools:tools,
 
-ai_goal:
-document.getElementById("goal").value
+ai_goal:document.getElementById("goal").value
 
 };
 
 
-try {
+try{
 
-const response = await fetch(webhook, {
 
-method: "POST",
+const response=await fetch(webhook,{
 
-headers: {
+method:"POST",
 
-"Content-Type": "application/json"
+headers:{
+
+"Content-Type":"application/json"
 
 },
 
-body: JSON.stringify(payload)
+body:JSON.stringify(payload)
 
 });
 
 
-const aiAnswer = await response.text();
+const data=await response.json();
 
 
-status.className = "success";
+status.className="success";
 
-status.innerHTML = `
 
-<h2>🎉 Your AI Automation Plan</h2>
+status.innerHTML=
 
-<br>
+data.message ||
 
-<div style="
-background:#ffffff;
-padding:20px;
-border-radius:10px;
-line-height:1.6;
-text-align:left;
-">
+"✅ Thank you! Your AI consultation request has been received.";
 
-${aiAnswer.replace(/\n/g,"<br>")}
-
-</div>
-
-`;
 
 }
 
 
-catch(error) {
+catch(err){
 
 
-status.className = "error";
+status.className="error";
 
-status.innerHTML =
-"❌ Something went wrong. Please try again.";
+
+status.innerHTML=
+
+"❌ Unable to contact the automation server.";
+
 
 }
 
