@@ -3,7 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Free AI Automation Consultation</title>
+
+<title>Free AI Automation Roadmap</title>
 
 <style>
 
@@ -15,44 +16,35 @@ font-family:Arial,Helvetica,sans-serif;
 }
 
 body{
-
 background:#f4f7fb;
 padding:40px;
-
 }
 
 .container{
-
 max-width:800px;
 margin:auto;
 background:white;
 padding:35px;
 border-radius:15px;
 box-shadow:0 10px 30px rgba(0,0,0,.1);
-
 }
 
 h1{
-
 color:#2563eb;
 margin-bottom:10px;
-
 }
 
 p{
-
 margin-bottom:25px;
 color:#555;
-
+line-height:1.6;
 }
 
 label{
-
 font-weight:bold;
 display:block;
 margin-top:18px;
 margin-bottom:8px;
-
 }
 
 input,
@@ -68,10 +60,8 @@ font-size:15px;
 }
 
 textarea{
-
 height:120px;
 resize:vertical;
-
 }
 
 .checkbox-group{
@@ -104,9 +94,7 @@ cursor:pointer;
 }
 
 button:hover{
-
 background:#1d4ed8;
-
 }
 
 button:disabled{
@@ -116,12 +104,14 @@ cursor:not-allowed;
 
 }
 
+
 #status{
 
 margin-top:25px;
-padding:15px;
-border-radius:10px;
+padding:20px;
+border-radius:12px;
 display:none;
+text-align:center;
 
 }
 
@@ -146,31 +136,79 @@ color:#721c24;
 
 }
 
+
+.spinner{
+
+display:inline-block;
+width:20px;
+height:20px;
+border:3px solid #ccc;
+border-top:3px solid #2563eb;
+border-radius:50%;
+animation:spin 1s linear infinite;
+vertical-align:middle;
+margin-right:8px;
+
+}
+
+
+@keyframes spin{
+
+100%{
+transform:rotate(360deg);
+}
+
+}
+
+
+.plan-box{
+
+background:white;
+padding:20px;
+border-radius:10px;
+margin-top:15px;
+text-align:left;
+line-height:1.7;
+}
+
+
 </style>
 
 </head>
 
+
 <body>
+
 
 <div class="container">
 
-<h1>🚀 Free AI Automation Consultation</h1>
+
+<h1>🚀 Get Your Free AI Automation Roadmap</h1>
+
 
 <p>
-Tell us about your business and our AI will recommend automations
-that can save you time and increase productivity.
+Tell us about your business. Our AI consultant will analyze your workflow and create a personalized automation plan showing where AI can save time, reduce manual work, and improve efficiency.
 </p>
 
+
+
 <form id="consultationForm">
+
 
 <label>Your Name</label>
 <input type="text" id="name" required>
 
+
+
 <label>Business Name</label>
 <input type="text" id="businessName" required>
 
+
+
 <label>Email</label>
 <input type="email" id="email" required>
+
+
 
 <label>Business Type</label>
 
@@ -187,9 +225,13 @@ that can save you time and increase productivity.
 
 </select>
 
+
+
 <label>What takes the most time in your business?</label>
 
 <textarea id="problem" required></textarea>
+
+
 
 <label>How many leads do you receive each month?</label>
 
@@ -202,7 +244,10 @@ that can save you time and increase productivity.
 
 </select>
 
+
+
 <label>Which tools do you currently use?</label>
+
 
 <div class="checkbox-group">
 
@@ -220,137 +265,202 @@ that can save you time and increase productivity.
 
 </div>
 
-<label>Describe one task you wish AI could automate.</label>
+
+
+<label>What would you like AI to automate?</label>
 
 <textarea id="goal" required></textarea>
 
+
+
 <button type="submit" id="submitBtn">
 
-Get My AI Automation Plan
+Generate My AI Automation Roadmap
 
 </button>
 
+
 </form>
+
 
 <div id="status"></div>
 
+
 </div>
 
+
+
 <script>
+
 
 const webhook =
 "https://n8n.asifautomation.dedyn.io/webhook-test/data-receiver";
 
-const form = document.getElementById("consultationForm");
-const status = document.getElementById("status");
-const submitBtn = document.getElementById("submitBtn");
 
-form.addEventListener("submit", async (e) => {
+const form=document.getElementById("consultationForm");
 
-  e.preventDefault();
+const status=document.getElementById("status");
 
-  status.style.display = "block";
-  status.className = "loading";
-  status.innerHTML = "⏳ Creating your personalized AI automation plan...";
-  submitBtn.disabled = true;
+const submitBtn=document.getElementById("submitBtn");
 
-  const tools = [];
 
-  document.querySelectorAll(".checkbox-group input:checked")
-    .forEach(cb => tools.push(cb.value));
 
-  const payload = {
-    name: document.getElementById("name").value,
-    business_name: document.getElementById("businessName").value,
-    email: document.getElementById("email").value,
-    business_type: document.getElementById("businessType").value,
-    biggest_problem: document.getElementById("problem").value,
-    monthly_leads: document.getElementById("leads").value,
-    tools: tools,
-    ai_goal: document.getElementById("goal").value
-  };
+form.addEventListener("submit", async(e)=>{
 
-  try {
 
-    const response = await fetch(webhook, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify(payload)
-    });
+e.preventDefault();
 
-    if (!response.ok) {
-      throw new Error(`Server responded with status ${response.status}`);
-    }
 
-    // Read the raw response first, then try to make sense of it,
-    // since n8n might return plain text, JSON with a known field,
-    // or JSON with an unexpected shape.
-    const rawText = await response.text();
 
-    let aiAnswer = rawText;
+status.style.display="block";
 
-    try {
-      const parsed = JSON.parse(rawText);
+status.className="loading";
 
-      // Try common field names an n8n "Respond to Webhook" node
-      // might use. Adjust this list to match your actual node output.
-      aiAnswer =
-        parsed.answer ||
-        parsed.output ||
-        parsed.text ||
-        parsed.message ||
-        parsed.result ||
-        JSON.stringify(parsed, null, 2);
 
-    } catch (parseErr) {
-      // Not JSON — rawText (plain text from the AI) is used as-is.
-    }
+status.innerHTML=`
 
-    if (!aiAnswer || aiAnswer.trim() === "") {
-      throw new Error("Received an empty response from the automation server.");
-    }
+<div class="spinner"></div>
 
-    status.className = "success";
+Analyzing your business and creating your personalized AI roadmap...
 
-    status.innerHTML = `
+<br><br>
 
-      <h2>🎉 Your AI Automation Plan</h2>
+This usually takes less than a minute.
 
-      <br>
+`;
 
-      <div style="
-        background:#ffffff;
-        padding:20px;
-        border-radius:10px;
-        line-height:1.6;
-        text-align:left;
-        ">
 
-        ${aiAnswer.replace(/\n/g, "<br>")}
 
-      </div>
+submitBtn.disabled=true;
 
-    `;
 
-  }
 
-  catch (error) {
+const tools=[];
 
-    status.className = "error";
 
-    status.innerHTML =
-      "❌ Something went wrong: " + error.message +
-      "<br><br>Please try again, or contact us directly if this keeps happening.";
+document.querySelectorAll(".checkbox-group input:checked")
 
-  }
+.forEach(cb=>tools.push(cb.value));
 
-  finally {
-    submitBtn.disabled = false;
-  }
+
+
+const payload={
+
+name:document.getElementById("name").value,
+
+business_name:document.getElementById("businessName").value,
+
+email:document.getElementById("email").value,
+
+business_type:document.getElementById("businessType").value,
+
+biggest_problem:document.getElementById("problem").value,
+
+monthly_leads:document.getElementById("leads").value,
+
+tools:tools,
+
+ai_goal:document.getElementById("goal").value
+
+};
+
+
+
+try{
+
+
+const response=await fetch(webhook,{
+
+method:"POST",
+
+headers:{
+
+"Content-Type":"application/json"
+
+},
+
+body:JSON.stringify(payload)
 
 });
+
+
+
+if(!response.ok){
+
+throw new Error("Server error");
+
+}
+
+
+
+status.className="success";
+
+
+status.innerHTML=`
+
+<h2>✅ Thank You!</h2>
+
+<br>
+
+<p>
+Your AI Automation Roadmap has been generated successfully.
+</p>
+
+<p>
+We have sent your personalized plan to your email address.
+</p>
+
+<p>
+You can check your inbox shortly.
+</p>
+
+<br>
+
+<strong>
+— Asif Automation
+</strong>
+
+`;
+
+
+
+}
+
+
+
+catch(error){
+
+
+status.className="error";
+
+
+status.innerHTML=`
+
+<h2>❌ Something went wrong</h2>
+
+<br>
+
+<p>
+Please try again or contact us directly.
+</p>
+
+`;
+
+}
+
+
+
+finally{
+
+submitBtn.disabled=false;
+
+}
+
+
+
+});
+
+
 
 </script>
 
